@@ -9,6 +9,7 @@
       ondemand_wifi: false
       local_dns: false
       ssh_tunneling: false
+      tor: false
       windows: false
       store_cakey: false
     providers_map:
@@ -89,6 +90,13 @@
 
     - pause:
         prompt: |
+          Do you want on demand tor over ssh?
+          [y/N]
+      register: _tor
+      when: tor is undefined
+
+    - pause:
+        prompt: |
           Do you want the VPN to support Windows 10 or Linux Desktop clients? (enables compatible ciphers and key exchange, less secure)
           [y/N]
       register: _windows
@@ -127,6 +135,10 @@
         algo_ssh_tunneling: >-
           {% if ssh_tunneling is defined %}{{ ssh_tunneling | bool }}
           {%- elif _ssh_tunneling.user_input is defined and _ssh_tunneling.user_input != "" %}{{ booleans_map[_ssh_tunneling.user_input] | default(defaults['ssh_tunneling']) }}
+          {%- else %}false{% endif %}
+        algo_tor: >-
+          {% if tor is defined %}{{ tor | bool }}
+          {%- elif _tor.user_input is defined and _tor.user_input != "" %}{{ booleans_map[_tor.user_input] | default(defaults['tor']) }}
           {%- else %}false{% endif %}
         algo_windows: >-
           {% if windows is defined %}{{ windows | bool }}

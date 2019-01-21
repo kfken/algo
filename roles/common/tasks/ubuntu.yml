@@ -106,6 +106,7 @@
       - iptables-persistent
       - cgroup-tools
       - openssl
+      - apt-transport-https
     sysctl:
       - item: net.ipv4.ip_forward
         value: 1

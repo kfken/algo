@@ -1,5 +1,6 @@
 Host algo
-  DynamicForward 127.0.0.1:1080
+  #DynamicForward 127.0.0.1:1080
+  LocalForward 9050 127.0.0.1:9050
   LogLevel quiet
   Compression yes
   IdentityFile {{ item }}.ssh.pem

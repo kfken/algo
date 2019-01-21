@@ -78,6 +78,8 @@
       tags: vpn
     - role: ssh_tunneling
       when: algo_ssh_tunneling
+    - role: tor
+      when: algo_tor
 
   post_tasks:
     - block:

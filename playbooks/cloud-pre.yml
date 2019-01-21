@@ -9,6 +9,7 @@
         'algo_ondemand_wifi_exclude "{{ algo_ondemand_wifi_exclude }}"' \
         'algo_local_dns "{{ algo_local_dns }}"' \
         'algo_ssh_tunneling "{{ algo_ssh_tunneling }}"' \
+        'algo_tor "{{ algo_tor }}"' \
         'algo_windows "{{ algo_windows }}"' \
         'wireguard_enabled "{{ wireguard_enabled }}"' \
         'dns_encryption "{{ dns_encryption }}"' \
