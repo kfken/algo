@@ -23,6 +23,14 @@
     masked: no
     state: stopped
 
+- name: Configure unattended-upgrades
+  copy:
+    src: 50-tor-unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50-tor-unattended-upgrades
+    owner: root
+    group: root
+    mode: 0644
+
 - replace:
     path: /etc/monit/monitrc
     regexp: '(\s+)set daemon 120(\s+.*)?$'
