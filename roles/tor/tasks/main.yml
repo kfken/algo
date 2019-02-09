@@ -1,9 +1,25 @@
 ---
-- name: Set tor apt
-  shell: 
-    echo "deb https://deb.torproject.org/torproject.org/ $(lsb_release -cs) main" >> /etc/apt/sources.list.d/tor.list &&
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 &&
-    apt update
+#- name: install tor project apt signing gpg key
+#  apt_key: 
+#    state: present
+#    data: {{ lookup('file', 'tor-signing-key.pub') }}
+
+- name: Get tor repo key
+  shell: |
+    curl https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --import
+    gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
+
+- apt_repository:
+    repo: deb https://deb.torproject.org/torproject.org bionic main
+    state: present 
+    filename: tor
+    update_cache: yes
+
+#- name: Add tor key
+#  apt_key:
+#    keyserver: keyserver.ubuntu.com
+#    id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
+#    keyring: /etc/apt/trusted.gpg.d/tor.gpg
 
 - name: Install tor and monit
   apt:
