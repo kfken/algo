@@ -87,6 +87,8 @@
       - cgroup-tools
       - openssl
       - apt-transport-https
+      - gnupg2
+
     sysctl:
       - item: net.ipv4.ip_forward
         value: 1
