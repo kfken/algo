@@ -6,3 +6,13 @@ Host algo
   IdentityFile {{ item }}.ssh.pem
   User {{ item }}
   Hostname {{ IP_subject_alt_name }}
+
+Host algo6
+  #DynamicForward 127.0.0.1:1080
+  LocalForward 9050 127.0.0.1:9050
+  LogLevel quiet
+  Compression yes
+  IdentityFile {{ item }}.ssh.pem
+  User {{ item }}
+  Hostname {{ ansible_default_ipv6['address'] }}
+  
