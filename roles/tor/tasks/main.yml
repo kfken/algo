@@ -23,14 +23,8 @@
 
 - name: Install tor and monit
   apt:
-    name: "{{ item }}"
+    name: ['tor', 'tor-geoipdb', 'torsocks', 'deb.torproject.org-keyring', 'monit']
     state: present
-  with_items:
-    - tor
-    - tor-geoipdb
-    - torsocks
-    - deb.torproject.org-keyring
-    - monit
 
 - name: disable tor on start
   systemd:
