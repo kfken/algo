@@ -35,6 +35,7 @@
                 IdentityFile {{ SSH_keys.private }}
                 KeepAlive yes
                 ServerAliveInterval 30
+        when: inventory_hostname != 'localhost'
         become: false
         delegate_to: localhost
 
@@ -93,8 +94,8 @@
               ipsec_enabled: {{ ipsec_enabled }}
               wireguard_enabled: {{ wireguard_enabled }}
               {% if tests|default(false)|bool %}
-              ca_password: {{ CA_password }}
-              p12_password: {{ p12_export_password }}
+              ca_password: '{{ CA_password }}'
+              p12_password: '{{ p12_export_password }}'
               {% endif %}
           become: false
           delegate_to: localhost
