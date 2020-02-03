@@ -6,6 +6,7 @@ Host algo
   IdentityFile {{ item }}.pem
   User {{ item }}
   Hostname {{ IP_subject_alt_name }}
+  Port {{ ansible_ssh_port }}
 
 Host algo6
   #DynamicForward 127.0.0.1:1080
@@ -15,4 +16,4 @@ Host algo6
   IdentityFile {{ item }}.pem
   User {{ item }}
   Hostname {{ ansible_default_ipv6['address'] }}
-  
+  Port {{ ansible_ssh_port }}

@@ -10,7 +10,7 @@
     gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
 
 - apt_repository:
-    repo: deb https://deb.torproject.org/torproject.org disco main
+    repo: deb https://deb.torproject.org/torproject.org eoan main
     state: present 
     filename: tor
     update_cache: yes
