@@ -62,14 +62,14 @@
   - name: Ubuntu | Configure AppArmor policy for dnscrypt-proxy
     copy:
       src: apparmor.profile.dnscrypt-proxy
-      dest: /etc/apparmor.d/usr.bin.dnscrypt-proxy
+      dest: /etc/apparmor.d/opt.dnscrypt-proxy.dnscrypt-proxy
       owner: root
       group: root
       mode: 0600
     notify: restart dnscrypt-proxy
 
   - name: Ubuntu | Enforce the dnscrypt-proxy AppArmor policy
-    command: aa-enforce usr.bin.dnscrypt-proxy
+    command: aa-complain opt.dnscrypt-proxy.dnscrypt-proxy
     changed_when: false
   tags: apparmor
   when: apparmor_enabled|default(false)|bool
