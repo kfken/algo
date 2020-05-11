@@ -55,7 +55,7 @@
     - name: WireGuard users config-ipv6 generated
       template:
         src: client6.conf.j2
-        dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
+        dest: "{{ wireguard_config_path }}/{{ item.1 }}6.conf"
         mode: "0600"
       with_indexed_items:  "{{ wireguard_users }}"
       when: item.1 in users
@@ -75,7 +75,7 @@
         which segno &&
         segno --scale=5 --output={{ item.1 }}.png \
           "{{ lookup('template', 'client.conf.j2') }}" && 
-        segno --scale=5 --output={{ item.1 }}-v6.png \
+        segno --scale=5 --output={{ item.1 }}6.png \
           "{{ lookup('template', 'client6.conf.j2') }}"  || true 
       changed_when: false
       with_indexed_items:  "{{ wireguard_users }}"
