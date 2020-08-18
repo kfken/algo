@@ -1,4 +1,3 @@
----
 - name: Get latest dnscrypt-proxy version
   uri:
     url: https://api.github.com/repos/DNSCrypt/dnscrypt-proxy/releases/latest
