@@ -129,14 +129,7 @@
       - openssl
       - gnupg2
       - cron
-    sysctl:
-      - item: net.ipv4.ip_forward
-        value: 1
-      - item: net.ipv4.conf.all.forwarding
-        value: 1
-      - { item: 'net.ipv6.conf.all.forwarding', value: 1, when: ipv6_support }
-      - item: net.ipv4.conf.all.route_localnet
-        value: 1
+    sysctl: "{{ [{'item': 'net.ipv4.ip_forward', 'value': 1}, {'item': 'net.ipv4.conf.all.forwarding', 'value': 1}, {'item': 'net.ipv4.conf.all.route_localnet', 'value': 1}] + ([{'item': 'net.ipv6.conf.all.forwarding', 'value': 1}] if ipv6_support else []) }}"
 
 - name: Install packages (batch optimization)
   include_tasks: packages.yml

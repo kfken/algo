@@ -31,7 +31,7 @@ See our [release announcement](https://blog.trailofbits.com/2016/12/12/meet-algo
 
 The easiest way to get an Algo server running is to run it on your local system or from [Google Cloud Shell](docs/deploy-from-cloudshell.md) and let it set up a _new_ virtual machine in the cloud for you.
 
-1. **Setup an account on a cloud hosting provider.** Algo supports [DigitalOcean](https://m.do.co/c/4d7f4ff9cfe4) (most user friendly), [Amazon Lightsail](https://aws.amazon.com/lightsail/), [Amazon EC2](https://aws.amazon.com/), [Vultr](https://www.vultr.com/), [Microsoft Azure](https://azure.microsoft.com/), [Google Compute Engine](https://cloud.google.com/compute/), [Scaleway](https://www.scaleway.com/), [DreamCompute](https://www.dreamhost.com/cloud/computing/), [Linode](https://www.linode.com) other OpenStack-based cloud hosting, [Exoscale](https://www.exoscale.com) or other CloudStack-based cloud hosting, or [Hetzner Cloud](https://www.hetzner.com/).
+1. **Setup an account on a cloud hosting provider.** Algo supports [DigitalOcean](https://m.do.co/c/4d7f4ff9cfe4) (most user friendly), [Amazon Lightsail](https://aws.amazon.com/lightsail/), [Amazon EC2](https://aws.amazon.com/), [Vultr](https://www.vultr.com/), [Microsoft Azure](https://azure.microsoft.com/), [Google Compute Engine](https://cloud.google.com/compute/), [Scaleway](https://www.scaleway.com/), [DreamCompute](https://www.dreamhost.com/cloud/computing/), [Linode](https://www.linode.com), other OpenStack-based cloud hosting, CloudStack-based cloud hosting, or [Hetzner Cloud](https://www.hetzner.com/).
 
 2. **Get a copy of Algo.** The Algo scripts will be run from your local system. There are two ways to get a copy:
 
@@ -45,17 +45,17 @@ The easiest way to get an Algo server running is to run it on your local system 
 3. **Set your configuration options.** Open `config.cfg` in your favorite text editor. Specify the users you want to create in the `users` list. Create a unique user for each device you plan to connect to your VPN. You should also review the other options before deployment, as changing your mind about them later [may require you to deploy a brand new server](https://github.com/trailofbits/algo/blob/master/docs/faq.md#i-deployed-an-algo-server-can-you-update-it-with-new-features).
 
 4. **Start the deployment.** Return to your terminal. In the Algo directory, run the appropriate script for your platform:
-    
+
     **macOS/Linux:**
     ```bash
     ./algo
     ```
-    
+
     **Windows:**
     ```powershell
     .\algo.ps1
     ```
-    
+
     The first time you run the script, it will automatically install the required Python environment (Python 3.11+). On subsequent runs, it starts immediately and works on all platforms (macOS, Linux, Windows via WSL). The Windows PowerShell script automatically uses WSL when needed, since Ansible requires a Unix-like environment. There are several optional features available, none of which are required for a fully functional VPN server. These optional features are described in the [deployment documentation](docs/deploy-from-ansible.md).
 
 That's it! You can now set up clients to connect to your VPN. Proceed to [Configure the VPN Clients](#configure-the-vpn-clients) below.
@@ -263,6 +263,14 @@ If you've read all the documentation and have further questions, [create a new d
 > If you’re uncomfortable shelling out the cash to an anonymous, random VPN provider, this is the best solution.
 
 -- [Thorin Klosowski](https://twitter.com/kingthor) for [Lifehacker](http://lifehacker.com/how-to-set-up-your-own-completely-free-vpn-in-the-cloud-1794302432)
+
+## Contributing
+
+See our [Development Guide](docs/DEVELOPMENT.md) for information on:
+* Setting up your development environment
+* Using pre-commit hooks for code quality
+* Running tests and linters
+* Contributing code via pull requests
 
 ## Support Algo VPN
 [![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CYZZD39GXUJ3E)
