@@ -1,0 +1,27 @@
+# PAM configuration for the Secure Shell service
+
+# Standard Un*x authentication.
+@include common-auth
+
+# Disallow non-root logins when /etc/nologin exists.
+account    required     pam_nologin.so
+
+# You may uncomment the following line for two-factor authentication
+# (e.g. using libpam-google-authenticator)
+# auth required pam_google_authenticator.so
+
+# Standard Un*x authorization.
+@include common-account
+
+# Standard Un*x session setup and teardown.
+@include common-session
+
+# Print the message of the day upon successful login.
+session    optional     pam_motd.so  motd=/run/motd.dynamic
+session    optional     pam_motd.so noupdate
+
+# Start and stop arti service for algo group members
+session    optional     pam_exec.so /usr/local/bin/manage-arti-session
+
+# Standard Un*x password management.
+@include common-password

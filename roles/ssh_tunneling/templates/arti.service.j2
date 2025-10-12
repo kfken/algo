@@ -1,0 +1,22 @@
+[Unit]
+Description=Arti Client
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+ExecStart=/usr/local/bin/arti -o address_filter.allow_onion_addrs=true -o application.allow_running_as_root=true proxy -p 9050
+Restart=no
+RestartSec=0
+StandardOutput=journal
+StandardError=journal
+
+# Only if you need specific user context
+# User=your-ssh-user
+Group=algo
+
+[Install]
+# Don't enable this service to start automatically
+# WantedBy=multi-user.target

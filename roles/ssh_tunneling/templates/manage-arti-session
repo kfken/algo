@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# FINAL VERSION of the PAM session script for arti.service
+
+# We send output to the logger to see what's happening.
+# The 'set -x' prints commands, which is useful for debugging.
+exec 1> >(logger -t manage-arti-session) 2>&1
+set -x
+
+# Check if the user is in the 'algo' group first.
+if ! id -nG "$PAM_USER" | grep -qw "algo"; then
+  # Not an algo user, do nothing.
+  exit 0
+fi
+
+if [ "$PAM_TYPE" = "open_session" ]; then
+  echo "PAM_ACTION: open_session for $PAM_USER. Starting arti.service."
+  sudo /usr/bin/systemctl start arti.service
+
+elif [ "$PAM_TYPE" = "close_session" ]; then
+  echo "PAM_ACTION: close_session for $PAM_USER. Checking for other algo users."
+
+  # Get a list of all logged-in users.
+  all_users=$(loginctl list-users --no-legend | awk '{print $2}')
+
+  found_another_algo_user=false
+  for user in $all_users; do
+    # Skip the user who is currently logging out
+    if [ "$user" = "$PAM_USER" ]; then
+      continue
+    fi
+
+    # Check if this other user is in the 'algo' group
+    if id -nG "$user" | grep -qw "algo"; then
+      echo "CHECK: Found other active algo user: '$user'. Will not stop service."
+      found_another_algo_user=true
+      break # Found one, no need to check further
+    fi
+  done
+
+  if [ "$found_another_algo_user" = false ]; then
+    echo "RESULT: No other active algo users found. Stopping arti.service."
+    sudo /usr/bin/systemctl stop arti.service
+  else
+    echo "RESULT: Other algo users are still active. Service will remain running."
+  fi
+fi
+
+exit 0

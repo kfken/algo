@@ -16,10 +16,10 @@
 
 
 - name: Sysctl tuning
-  sysctl: name="{{ item.item }}" value="{{ item.value }}"
-  when: item.item
-  with_items:
-    - "{{ sysctl | default([]) }}"
+  sysctl:
+    name: "{{ item.item }}"
+    value: "{{ item.value }}"
+  loop: "{{ sysctl | selectattr('when', 'undefined') | list + sysctl | selectattr('when', 'defined') | selectattr('when') | list }}"
   tags:
     - always
 

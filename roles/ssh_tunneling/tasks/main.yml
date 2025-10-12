@@ -19,6 +19,41 @@
     state: present
     gid: 15000
 
+- name: Grant algo group sudo permissions for arti service
+  copy:
+    dest: /etc/sudoers.d/algo-arti-service
+    content: '%algo ALL=(root) NOPASSWD: /usr/bin/systemctl start arti.service, /usr/bin/systemctl stop arti.service, /usr/bin/systemctl is-active arti.service'
+    mode: '0440'
+    owner: root
+    group: root
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Create the arti systemd service file
+  template:
+    src: arti.service.j2
+    dest: /etc/systemd/system/arti.service
+    mode: '0644'
+  notify:
+    - daemon-reload # To ensure systemd knows about the new/changed service
+
+- name: Ensure arti service is disabled (will be controlled by PAM)
+  systemd:
+    name: arti
+    enabled: false
+    state: stopped
+
+- name: Create arti PAM control script
+  template:
+    src: manage-arti-session
+    dest: /usr/local/bin/manage-arti-session
+    mode: '0755'
+
+- name: Create PAM configuration for sshd to manage arti
+  template:
+    src: sshd-pam.j2
+    dest: /etc/pam.d/sshd
+    mode: '0644'
+
 - name: Ensure that the jail directory exist
   file:
     path: /var/jail/
@@ -64,7 +99,6 @@
         - name: Build ssh private keys
           openssl_privatekey:
             path: "{{ ssh_tunnels_config_path }}/{{ item.item }}.pem"
-            passphrase: "{{ p12_export_password }}"
             cipher: auto
             force: false
           no_log: "{{ algo_no_log | bool }}"
@@ -76,7 +110,6 @@
           openssl_publickey:
             path: "{{ ssh_tunnels_config_path }}/{{ item.item.item }}.pub"
             privatekey_path: "{{ ssh_tunnels_config_path }}/{{ item.item.item }}.pem"
-            privatekey_passphrase: "{{ p12_export_password }}"
             format: OpenSSH
             force: true
           no_log: "{{ algo_no_log | bool }}"
@@ -113,6 +146,6 @@
         state: absent
         remove: true
         force: true
-      when: item not in users
+      when: item is defined and item | length > 0 and item not in users
       with_items: "{{ getent_group['algo'][2].split(',') }}"
   tags: update-users

@@ -1,8 +1,19 @@
 Host algo
-  DynamicForward 127.0.0.1:1080
-  LogLevel quiet
-  Compression yes
-  IdentitiesOnly yes
-  IdentityFile {{ item }}.ssh.pem
-  User {{ item }}
   Hostname {{ IP_subject_alt_name }}
+  Port {{ ssh_port }}
+  DynamicForward 127.0.0.1:1080
+  #LocalForward 9050 127.0.0.1:9050
+  User {{ item }}
+  IdentityFile {{ ssh_tunnels_config_path }}/{{ item }}.pem
+  IdentitiesOnly yes
+
+{% if ipv6_support and ansible_default_ipv6.address is defined %}
+Host algo6
+  HostName {{ ansible_default_ipv6.address }}
+  Port {{ ssh_port }}
+  DynamicForward 127.0.0.1:1080
+  #LocalForward 9050 127.0.0.1:9050
+  User {{ item }}
+  IdentityFile {{ ssh_tunnels_config_path }}/{{ item }}.pem
+  IdentitiesOnly yes
+{% endif %}

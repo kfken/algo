@@ -49,6 +49,20 @@
           when: item.1 in users
           vars:
             index: "{{ item.0 }}"
+            ipv6_endpoint: false
+
+        - name: WireGuard users IPv6 config generated
+          template:
+            src: client.conf.j2
+            dest: "{{ wireguard_config_path }}/{{ item.1 }}-ipv6.conf"
+            mode: "0600"
+          with_indexed_items: "{{ wireguard_users }}"
+          when:
+            - item.1 in users
+            - ipv6_support
+          vars:
+            index: "{{ item.0 }}"
+            ipv6_endpoint: true
 
         - include_tasks: mobileconfig.yml
           loop:
@@ -61,11 +75,28 @@
           shell: >
             umask 077;
             which segno &&
-            segno --scale=5 --output={{ item.1 }}.png \
-              "{{ lookup('template', 'client.conf.j2') }}" || true
+            segno --scale=5 --output={{ item.1 }}.png "{{ lookup('file', wireguard_config_path + '/' + item.1 + '.conf') }}" || true
           changed_when: false
           with_indexed_items: "{{ wireguard_users }}"
           when: item.1 in users
+          vars:
+            index: "{{ item.0 }}"
+            ansible_python_interpreter: "{{ ansible_playbook_python }}"
+          args:
+            chdir: "{{ wireguard_config_path }}"
+            executable: bash
+          no_log: true
+
+        - name: Generate IPv6 QR codes
+          shell: >
+            umask 077;
+            which segno &&
+            segno --scale=5 --output={{ item.1 }}-ipv6.png "{{ lookup('file', wireguard_config_path + '/' + item.1 + '-ipv6.conf') }}" || true
+          changed_when: false
+          with_indexed_items: "{{ wireguard_users }}"
+          when:
+            - item.1 in users
+            - ipv6_support
           vars:
             index: "{{ item.0 }}"
             ansible_python_interpreter: "{{ ansible_playbook_python }}"
