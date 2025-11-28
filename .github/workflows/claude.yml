@@ -27,42 +27,23 @@ jobs:
       actions: read # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6.0.0
         with:
           fetch-depth: 1
-          persist-credentials: false
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
           # This is an optional setting that allows Claude to read CI results on PRs
           additional_permissions: |
             actions: read
 
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
+          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
+          # prompt: 'Update the pull request description to include a summary of changes.'
 
-          # Optional: Customize the trigger phrase (default: @claude)
-          # trigger_phrase: "/claude"
-
-          # Optional: Trigger when specific user is assigned to an issue
-          # assignee_trigger: "claude-bot"
-
-          # Optional: Allow Claude to run specific commands
-          allowed_tools: >-
-            Bash(ansible-playbook * --syntax-check),Bash(ansible-lint *),Bash(ruff check *),
-            Bash(yamllint *),Bash(shellcheck *),Bash(python -m pytest *)
-
-          # Optional: Add custom instructions for Claude to customize its behavior for your project
-          custom_instructions: |
-            Follow Algo's security-first principles
-            Be conservative with dependency updates
-            Run ansible-lint, ruff, yamllint, and shellcheck before suggesting changes
-            Check the CLAUDE.md file for project-specific guidance
-
-          # Optional: Custom environment variables for Claude
-          # claude_env: |
-          #   NODE_ENV: test
+          # Add allowed tools for Algo project
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(ansible-playbook * --syntax-check),Bash(ansible-lint *),Bash(ruff check *),Bash(yamllint *),Bash(shellcheck *),Bash(python -m pytest *)"'
