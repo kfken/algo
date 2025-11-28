@@ -43,23 +43,25 @@
             src: client.conf.j2
             dest: "{{ wireguard_config_path }}/{{ item }}.conf"
             mode: "0600"
-          with_indexed_items: "{{ wireguard_users }}"
-          when: item.1 in users
+          loop: "{{ wireguard_users }}"
+          loop_control:
+            index_var: index
+          when: item in users
           vars:
-            index: "{{ item.0 }}"
             ipv6_endpoint: false
 
         - name: WireGuard users IPv6 config generated
           template:
             src: client.conf.j2
-            dest: "{{ wireguard_config_path }}/{{ item.1 }}-ipv6.conf"
+            dest: "{{ wireguard_config_path }}/{{ item }}-ipv6.conf"
             mode: "0600"
-          with_indexed_items: "{{ wireguard_users }}"
+          loop: "{{ wireguard_users }}"
+          loop_control:
+            index_var: index
           when:
-            - item.1 in users
+            - item in users
             - ipv6_support
           vars:
-            index: "{{ item.0 }}"
             ipv6_endpoint: true
 
         - include_tasks: mobileconfig.yml
@@ -72,15 +74,13 @@
         - name: Generate QR codes
           shell: >
             umask 077;
-            which segno &&
-            segno --scale=5 --output={{ item.1 }}.png "{{ lookup('file', wireguard_config_path + '/' + item.1 + '.conf') }}" || true
+            which segno && segno --scale=5 --output={{ item }}.png "{{ lookup('file', '{{ config_file }}') }}" || true
           changed_when: false
           loop: "{{ wireguard_users }}"
-          loop_control:
-            index_var: index
           when: item in users
           vars:
             ansible_python_interpreter: "{{ ansible_playbook_python }}"
+            config_file: "{{ wireguard_config_path }}/{{ item }}.conf"
           args:
             chdir: "{{ wireguard_config_path }}"
             executable: bash
@@ -89,16 +89,15 @@
         - name: Generate IPv6 QR codes
           shell: >
             umask 077;
-            which segno &&
-            segno --scale=5 --output={{ item.1 }}-ipv6.png "{{ lookup('file', wireguard_config_path + '/' + item.1 + '-ipv6.conf') }}" || true
+            which segno && segno --scale=5 --output={{ item }}-ipv6.png "{{ lookup('file', '{{ config_file }}') }}" || true
           changed_when: false
-          with_indexed_items: "{{ wireguard_users }}"
+          loop: "{{ wireguard_users }}"
           when:
-            - item.1 in users
+            - item in users
             - ipv6_support
           vars:
-            index: "{{ item.0 }}"
             ansible_python_interpreter: "{{ ansible_playbook_python }}"
+            config_file: "{{ wireguard_config_path }}/{{ item }}-ipv6.conf"
           args:
             chdir: "{{ wireguard_config_path }}"
             executable: bash
