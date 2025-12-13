@@ -2,7 +2,6 @@
 exclude_paths:
   - .cache/
   - .github/
-  - tests/legacy-lxd/
   - tests/
   - files/cloud-init/  # Cloud-init files have special format requirements
   - playbooks/  # These are task files included by other playbooks, not standalone playbooks
@@ -53,10 +52,7 @@ verbosity: 1
 mock_modules:
   - gcp_compute_location_info
   - lightsail_region_facts
-  - linode_stackscript_v4
   - x25519_pubkey
-  - linode_v4
   - scaleway_compute
-  - digital_ocean_floating_ip
 
 # vim: ft=yaml
