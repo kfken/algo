@@ -26,11 +26,11 @@ jobs:
       matrix:
         vpn_type: ['wireguard', 'ipsec', 'both']
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v5.0.1
+      - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98  # v5.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.11'
           # Note: No pip cache - we use uv for dependency management
@@ -46,7 +46,7 @@ jobs:
             dnsmasq \
             qrencode \
             openssl \
-            linux-headers-$(uname -r) \
+            "linux-headers-$(uname -r)" \
             libxml2-utils \
             dnsutils
 
@@ -260,7 +260,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v5.0.1
+      - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98  # v5.0.1
         with:
           persist-credentials: false
 
@@ -296,6 +296,6 @@ jobs:
           EOF
 
           # Test that config is readable
-          docker run --rm --entrypoint cat -v $(pwd)/test-data:/data algo:ci-test /data/config.cfg
+          docker run --rm --entrypoint cat -v "$(pwd)/test-data:/data" algo:ci-test /data/config.cfg
 
           echo "✓ Docker image built and basic tests passed"
