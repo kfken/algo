@@ -24,12 +24,22 @@
     mode: "0600"
   loop: "{{ users + [IP_subject_alt_name] }}"
 
+- name: Read raw private keys
+  # slurp returns base64 of the exact bytes. The file lookup cannot be used here:
+  # it forces a UTF-8 decode of binary key material (and rstrips it), which is a
+  # hard error as of ansible-core 2.23.
+  slurp:
+    src: "{{ wireguard_pki_path }}/private/{{ item }}.raw"
+  register: wireguard_private_raw
+  loop: "{{ users + [IP_subject_alt_name] }}"
+  no_log: true
+
 - name: Save base64 encoded private key
   copy:
-    dest: "{{ wireguard_pki_path }}/private/{{ item }}"
-    content: "{{ lookup('file', wireguard_pki_path + '/private/' + item + '.raw') | b64encode }}"
+    dest: "{{ wireguard_pki_path }}/private/{{ item.item }}"
+    content: "{{ item.content }}"
     mode: "0600"
-  loop: "{{ users + [IP_subject_alt_name] }}"
+  loop: "{{ wireguard_private_raw.results }}"
   no_log: true
 
 - name: Generate raw preshared keys
@@ -40,12 +50,19 @@
     mode: "0600"
   loop: "{{ users + [IP_subject_alt_name] }}"
 
+- name: Read raw preshared keys
+  slurp:
+    src: "{{ wireguard_pki_path }}/preshared/{{ item }}.raw"
+  register: wireguard_preshared_raw
+  loop: "{{ users + [IP_subject_alt_name] }}"
+  no_log: true
+
 - name: Save base64 encoded preshared keys
   copy:
-    dest: "{{ wireguard_pki_path }}/preshared/{{ item }}"
-    content: "{{ lookup('file', wireguard_pki_path + '/preshared/' + item + '.raw') | b64encode }}"
+    dest: "{{ wireguard_pki_path }}/preshared/{{ item.item }}"
+    content: "{{ item.content }}"
     mode: "0600"
-  loop: "{{ users + [IP_subject_alt_name] }}"
+  loop: "{{ wireguard_preshared_raw.results }}"
   no_log: true
 
 - name: Generate public keys

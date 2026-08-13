@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# PAM session hook (pam_exec) that starts arti.service on the first algo login
+# and stops it when the last algo session goes away.
+#
+# Invoked by /etc/pam.d/sshd. PAM supplies PAM_USER and PAM_TYPE in the
+# environment. Deliberately quiet: this runs on every SSH login and logout, and
+# logging usernames here would defeat the log scrubbing done by the privacy role.
+#
+# Note: -e is intentionally omitted. A failing id/loginctl must not abort a PAM
+# session hook.
+set -uo pipefail
+
+readonly SERVICE="arti.service"
+
+log_error() {
+    logger -p auth.err -t manage-arti-session -- "$1"
+}
+
+in_algo_group() {
+    id -nG "$1" 2>/dev/null | grep -qw algo
+}
+
+# Only act for members of the algo group.
+if ! in_algo_group "$PAM_USER"; then
+    exit 0
+fi
+
+case "$PAM_TYPE" in
+    open_session)
+        if ! sudo /usr/bin/systemctl start "$SERVICE"; then
+            log_error "failed to start $SERVICE"
+        fi
+        ;;
+
+    close_session)
+        # Count sessions -- not users. Counting users would stop arti out from
+        # under a user who still has a second session open.
+        #
+        # This hook runs before pam_systemd tears the session down, so the
+        # closing session is normally still listed. Stopping at <= 1 is correct
+        # either way: still listed and alone -> 1 -> stop; still listed with a
+        # peer -> 2 -> keep; already deregistered and alone -> 0 -> stop.
+        algo_sessions=0
+        while read -r _session _uid session_user _rest; do
+            [ -n "${session_user:-}" ] || continue
+            if in_algo_group "$session_user"; then
+                algo_sessions=$((algo_sessions + 1))
+            fi
+        done < <(loginctl list-sessions --no-legend 2>/dev/null)
+
+        if [ "$algo_sessions" -le 1 ]; then
+            if ! sudo /usr/bin/systemctl stop "$SERVICE"; then
+                log_error "failed to stop $SERVICE"
+            fi
+        fi
+        ;;
+esac
+
+exit 0

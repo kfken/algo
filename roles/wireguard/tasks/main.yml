@@ -77,7 +77,7 @@
         - name: Generate QR codes
           shell: >
             umask 077;
-            which segno && segno --scale=5 --output={{ item }}.png "{{ lookup('file', '{{ config_file }}') }}" || true
+            which segno && segno --scale=5 --output={{ item }}.png "{{ lookup('file', config_file) }}" || true
           changed_when: false
           loop: "{{ wireguard_users }}"
           when: item in users
@@ -92,7 +92,7 @@
         - name: Generate IPv6 QR codes
           shell: >
             umask 077;
-            which segno && segno --scale=5 --output={{ item }}-ipv6.png "{{ lookup('file', '{{ config_file }}') }}" || true
+            which segno && segno --scale=5 --output={{ item }}-ipv6.png "{{ lookup('file', config_file) }}" || true
           changed_when: false
           loop: "{{ wireguard_users }}"
           when:

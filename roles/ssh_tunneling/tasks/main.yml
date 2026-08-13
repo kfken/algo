@@ -36,23 +36,41 @@
   notify:
     - daemon-reload # To ensure systemd knows about the new/changed service
 
-- name: Ensure arti service is disabled (will be controlled by PAM)
+- name: Ensure arti service is not enabled at boot (PAM controls it per-session)
   systemd:
     name: arti
     enabled: false
-    state: stopped
 
 - name: Create arti PAM control script
-  template:
+  copy:
     src: manage-arti-session
     dest: /usr/local/bin/manage-arti-session
     mode: '0755'
 
-- name: Create PAM configuration for sshd to manage arti
-  template:
-    src: sshd-pam.j2
-    dest: /etc/pam.d/sshd
+# Previous versions of this role replaced /etc/pam.d/sshd wholesale with a
+# snapshot template. Strip the unmarked pam_exec line it left behind, but only
+# before the managed block exists -- otherwise this would remove the line from
+# inside the block on every re-run and blockinfile would keep re-adding it.
+- name: Check whether the sshd PAM stack is already managed
+  command: grep -q '^# BEGIN ANSIBLE MANAGED BLOCK ssh_tunneling_role$' /etc/pam.d/sshd
+  register: algo_pam_marker
+  changed_when: false
+  failed_when: false
+
+- name: Remove unmarked legacy arti pam_exec line
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^\s*session\s+optional\s+pam_exec\.so\s+/usr/local/bin/manage-arti-session\s*$'
+    state: absent
+  when: algo_pam_marker.rc != 0
+
+- name: Ensure the sshd PAM stack manages the arti session
+  blockinfile:
+    path: /etc/pam.d/sshd
+    marker: "# {mark} ANSIBLE MANAGED BLOCK ssh_tunneling_role"
     mode: '0644'
+    block: |
+      session    optional     pam_exec.so /usr/local/bin/manage-arti-session
 
 - name: Ensure that the jail directory exist
   file:
@@ -123,7 +141,7 @@
           template:
             src: ssh_config.j2
             dest: "{{ ssh_tunnels_config_path }}/{{ item }}.ssh_config"
-            mode: '0700'
+            mode: '0600'
           loop: "{{ users }}"
 
     - name: The authorized keys file created

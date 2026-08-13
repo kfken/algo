@@ -13,11 +13,18 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def _ansible_bool(value):
-    """Simulate the Ansible bool filter for test purposes."""
+    """Simulate the Ansible bool filter for test purposes.
+
+    Must match ansible-core's actual behaviour: only a fixed set of tokens is
+    recognised. Anything else (an IP address string, for example) is coerced to
+    False with a deprecation warning -- it does NOT become True. Getting this
+    wrong here previously hid a real bug in rules.v4.j2, where `snat_aipv4|bool`
+    silently disabled SNAT whenever alternative_ingress_ip was in use.
+    """
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
-        return value.lower() not in ("false", "no", "0", "")
+        return value.lower() in ("true", "yes", "on", "1", "t", "y")
     return bool(value)
 
 
